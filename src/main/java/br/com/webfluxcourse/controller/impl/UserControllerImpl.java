@@ -46,6 +46,6 @@ public class UserControllerImpl implements UserController {
 
     @Override
     public ResponseEntity<Mono<Void>> delete(String id) {
-        return null;
+        return ResponseEntity.ok().body(userService.delete(id).then());
     }
 }
