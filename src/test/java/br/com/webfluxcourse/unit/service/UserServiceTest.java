@@ -52,6 +52,13 @@ class UserServiceTest {
 
     @Test
     void findById() {
+        when(userRepository.findById(anyString())).thenReturn(Mono.just(User.builder().id("1234").build()));
+
+        Mono<User> result = userService.findById("123");
+
+        StepVerifier.create(result).expectNextMatches(user -> user.getClass() == User.class).expectComplete().verify();
+
+        verify(userRepository, times(1)).findById(anyString());
     }
 
     @Test
