@@ -5,6 +5,7 @@ import br.com.webfluxcourse.entity.model.request.UserRequest;
 import br.com.webfluxcourse.mapper.UserMapper;
 import br.com.webfluxcourse.repository.UserRepository;
 import br.com.webfluxcourse.service.UserService;
+import br.com.webfluxcourse.service.exception.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,7 @@ import reactor.test.StepVerifier;
 
 import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -91,5 +93,23 @@ class UserServiceTest {
 
     @Test
     void delete() {
+        User entity = User.builder().build();
+        when(userRepository.findAndRemove(anyString())).thenReturn(Mono.just(entity));
+
+        Mono<User> result = userService.delete("123");
+
+        StepVerifier.create(result).expectNextMatches(Objects::nonNull).expectComplete().verify();
+
+        verify(userRepository, times(1)).findAndRemove(anyString());
+    }
+
+    @Test
+    void handleNotFound() {
+        when(userRepository.findById(anyString())).thenReturn(Mono.empty());
+        try {
+            userService.findById("123").block();
+        } catch (Exception e) {
+            assertEquals(ObjectNotFoundException.class, e.getClass());
+        }
     }
 }
