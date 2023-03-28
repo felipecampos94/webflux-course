@@ -158,8 +158,15 @@ class UserControllerImplTest {
 
     }
 
-
     @Test
-    void delete() {
+    @DisplayName("Test delete endpoint with success")
+    void testDeleteWithSuccess() {
+        when(userService.delete(anyString())).thenReturn(just(User.builder().build()));
+
+        webTestClient.delete().uri(BASE_URI + "/" + ID)
+                .exchange()
+                .expectStatus().isOk();
+
+        verify(userService).delete(anyString());
     }
 }
