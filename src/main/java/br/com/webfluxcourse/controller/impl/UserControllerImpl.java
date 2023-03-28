@@ -3,6 +3,7 @@ package br.com.webfluxcourse.controller.impl;
 import br.com.webfluxcourse.controller.UserController;
 import br.com.webfluxcourse.entity.model.request.UserRequest;
 import br.com.webfluxcourse.entity.model.response.UserResponse;
+import br.com.webfluxcourse.mapper.UserMapper;
 import br.com.webfluxcourse.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 public class UserControllerImpl implements UserController {
 
     private final UserService userService;
+    private final UserMapper mapper;
 
     @Override
     public ResponseEntity<Mono<Void>> save(UserRequest request) {
@@ -27,7 +29,7 @@ public class UserControllerImpl implements UserController {
 
     @Override
     public ResponseEntity<Mono<UserResponse>> findById(String id) {
-        return null;
+        return ResponseEntity.ok().body(userService.findById(id).map(mapper::toResponse));
     }
 
     @Override
