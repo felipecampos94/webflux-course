@@ -10,16 +10,18 @@ import org.mapstruct.MappingTarget;
 import static org.mapstruct.NullValueCheckStrategy.ALWAYS;
 import static org.mapstruct.NullValuePropertyMappingStrategy.IGNORE;
 
-@Mapper(componentModel = "spring",
+@Mapper(
+        componentModel = "spring",
         nullValuePropertyMappingStrategy = IGNORE,
-        nullValueCheckStrategy = ALWAYS)
+        nullValueCheckStrategy = ALWAYS
+)
 public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     User toEntity(final UserRequest request);
 
-    UserResponse toResponse(final User entity);
-
     @Mapping(target = "id", ignore = true)
     User toEntity(final UserRequest request, @MappingTarget final User entity);
+
+    UserResponse toResponse(final User entity);
 }

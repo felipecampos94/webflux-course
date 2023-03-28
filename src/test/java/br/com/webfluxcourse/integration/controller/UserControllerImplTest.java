@@ -1,7 +1,9 @@
 package br.com.webfluxcourse.integration.controller;
 
+
 import br.com.webfluxcourse.entity.User;
 import br.com.webfluxcourse.entity.model.request.UserRequest;
+import br.com.webfluxcourse.entity.model.response.UserResponse;
 import br.com.webfluxcourse.mapper.UserMapper;
 import br.com.webfluxcourse.service.UserService;
 import com.mongodb.reactivestreams.client.MongoClient;
@@ -12,19 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 import static reactor.core.publisher.Mono.just;
-import static reactor.core.publisher.Mono.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -86,8 +86,27 @@ class UserControllerImplTest {
     }
 
     @Test
-    void findById() {
+    @DisplayName("Test find by id endpoint with success")
+    void testFindByIdWithSuccess() {
+        final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
+
+        when(userService.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+        webTestClient.get().uri(BASE_URI + "/" + ID)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(ID)
+                .jsonPath("$.name").isEqualTo(NAME)
+                .jsonPath("$.email").isEqualTo(EMAIL)
+                .jsonPath("$.password").isEqualTo(PASSWORD);
+
+        verify(userService).findById(anyString());
+        verify(mapper).toResponse(any(User.class));
     }
+
 
     @Test
     void findAll() {
